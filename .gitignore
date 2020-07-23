@@ -1,3 +1,6 @@
 # IDEA
 .idea/
 cmake-build-debug/
+
+# python
+__pycache__/

@@ -1,5 +1,5 @@
-#ifndef CTP_WIN_TEST_DISPATCHQUEUE_H
-#define CTP_WIN_TEST_DISPATCHQUEUE_H
+#ifndef DISPATCH_QUEUE_H
+#define DISPATCH_QUEUE_H
 
 #include <functional>
 #include <queue>
@@ -10,7 +10,7 @@ class DispatchQueue {
     typedef std::function<void(void)> fp_t;
 
 public:
-    DispatchQueue(size_t thread_cnt = 1);
+    explicit DispatchQueue(size_t thread_cnt = 1);
     ~DispatchQueue();
 
     // dispatch and copy
@@ -31,7 +31,7 @@ private:
     std::condition_variable cv_;
     bool quit_ = false;
 
-    void dispatch_thread_handler(void);
+    void dispatch_thread_handler();
 };
 
-#endif //CTP_WIN_TEST_DISPATCHQUEUE_H
+#endif //DISPATCH_QUEUE_H

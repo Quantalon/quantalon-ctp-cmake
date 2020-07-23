@@ -1,12 +1,11 @@
-#include "DispatchQueue.h"
+#include "dispatch_queue.h"
 
 
-DispatchQueue::DispatchQueue(size_t thread_cnt) :
-        threads_(thread_cnt)
+DispatchQueue::DispatchQueue(size_t thread_cnt) : threads_(thread_cnt)
 {
-    for (size_t i = 0; i < threads_.size(); i++)
+    for(auto & thread : threads_)
     {
-        threads_[i] = std::thread(&DispatchQueue::dispatch_thread_handler, this);
+        thread = std::thread(&DispatchQueue::dispatch_thread_handler, this);
     }
 }
 
@@ -19,11 +18,11 @@ DispatchQueue::~DispatchQueue()
     cv_.notify_all();
 
     // Wait for threads to finish before we exit
-    for(size_t i = 0; i < threads_.size(); i++)
+    for(auto & thread : threads_)
     {
-        if(threads_[i].joinable())
+        if(thread.joinable())
         {
-            threads_[i].join();
+            thread.join();
         }
     }
 }
@@ -50,27 +49,25 @@ void DispatchQueue::dispatch(fp_t&& op)
     cv_.notify_one();
 }
 
-void DispatchQueue::dispatch_thread_handler(void)
+void DispatchQueue::dispatch_thread_handler()
 {
     std::unique_lock<std::mutex> lock(lock_);
 
     do {
         //Wait until we have data or a quit signal
         cv_.wait(lock, [this]{
-            return (q_.size() || quit_);
+            return (!q_.empty() || quit_);
         });
 
         //after wait, we own the lock
-        if(!quit_ && q_.size())
+        if(!quit_ && !q_.empty())
         {
             auto op = std::move(q_.front());
             q_.pop();
 
             //unlock now that we're done messing with the queue
             lock.unlock();
-
             op();
-
             lock.lock();
         }
     } while (!quit_);

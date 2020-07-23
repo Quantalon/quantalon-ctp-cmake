@@ -1,16 +1,15 @@
 #include <iostream>
 #include <pybind11/pybind11.h>
 
-#include "MdApi.h"
+#include "bind_constants.h"
+#include "bind_structs.h"
+#include "bind_md_api.h"
+#include "bind_td_api.h"
 
-namespace py = pybind11;
 
 PYBIND11_MODULE(ctp, m) {
-    py::class_<MdApi> md_api(m, "MdApi", py::module_local());
-    md_api
-        .def(py::init<>())
-        .def("createApi", &MdApi::createApi)
-        .def("getApiVersion", &MdApi::getApiVersion)
-        .def("getTradingDay", &MdApi::getTradingDay)
-        .def("registerFront", &MdApi::registerFront);
+    bind_constants(m);
+    bind_structs(m);
+    bind_md_api(m);
+    bind_td_api(m);
 }
